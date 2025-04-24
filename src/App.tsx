@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { fetchRepositories } from "./services/githubApi";
 import { Repository } from "./types";
+import RepositoryDetails from "./components/RepositoryDetails";
 
 export default function App() {
   const [repositories, setRepositories] = useState<Repository[]>([]);
@@ -10,6 +11,7 @@ export default function App() {
     async function getRepositories() {
       try {
         const repos = await fetchRepositories("gryboskamil");
+        console.log({ repos });
         setRepositories(repos);
       } catch (error) {
         console.error("Error fetching repositories:", error);
@@ -23,14 +25,9 @@ export default function App() {
     <div>
       <h1>Repositories</h1>
       <ul>
-        {repositories.map((repo, index) => (
-          <li key={index}>
-            <div>
-              <div>{repo.name}</div>
-              <div>{repo.created_at}</div>
-              <div>{repo.description}</div>
-              <div>{repo.url}</div>
-            </div>
+        {repositories.map((repo) => (
+          <li key={repo.id}>
+            <RepositoryDetails repository={repo} />
           </li>
         ))}
       </ul>
