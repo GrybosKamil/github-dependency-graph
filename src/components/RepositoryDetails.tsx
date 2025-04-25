@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchRepositoryDetails } from "../services/githubApi";
-import { Repository } from "../types";
+import { fetchFileContent } from "../services/githubApi";
+import { FileContent, Repository } from "../types";
 
 type RepositoryDetailsProps = {
   repository: Repository;
@@ -9,24 +9,24 @@ type RepositoryDetailsProps = {
 export default function RepositoryDetails({
   repository,
 }: RepositoryDetailsProps) {
-  const [repositoryDetails, setRepositoryDetails] = useState<any>(null);
+  const [fileContent, setFileContent] = useState<FileContent | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function getRepositoryDetails() {
       try {
-        const details = await fetchRepositoryDetails(
+        const packageJsonFileContent = await fetchFileContent(
           repository.owner.login,
           repository.name
         );
 
-        if (!details) {
+        if (!packageJsonFileContent) {
           console.warn(
             `Skipping repository ${repository.name} (no package.json)`
           );
         }
 
-        setRepositoryDetails(details);
+        setFileContent(packageJsonFileContent);
       } catch (error) {
         console.error(
           `Error fetching repository details for ${repository.name}:`,
@@ -60,10 +60,10 @@ export default function RepositoryDetails({
       <h2>{repository.name}</h2>
       <p>{repository.description}</p>
 
-      {repositoryDetails ? (
+      {fileContent ? (
         <div>
           <h3>Package.json</h3>
-          <pre>{JSON.stringify(repositoryDetails, null, 2)}</pre>
+          <pre>{JSON.stringify(fileContent, null, 2)}</pre>
         </div>
       ) : (
         <p>No `package.json` found.</p>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Repository } from "../types";
+import { FileContent, Repository } from "../types";
 
 const GITHUB_API_URL = "https://api.github.com";
 const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
@@ -37,7 +37,10 @@ export const fetchRepositories = async (
     throw error;
   }
 };
-export const fetchRepositoryDetails = async (owner: string, repo: string) => {
+export const fetchFileContent = async (
+  owner: string,
+  repo: string
+): Promise<FileContent | null> => {
   const cacheKey = `repositoryDetails_${owner}_${repo}`;
 
   try {
