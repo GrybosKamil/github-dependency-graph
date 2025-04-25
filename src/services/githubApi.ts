@@ -70,8 +70,6 @@ export const fetchRepositoryDetails = async (owner: string, repo: string) => {
     }
 
     console.error("Error fetching repository details:", error);
-
-    localStorage.setItem(cacheKey, JSON.stringify({ error: error.message }));
     throw error;
   }
 };

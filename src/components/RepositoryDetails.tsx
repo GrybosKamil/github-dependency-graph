@@ -44,16 +44,30 @@ export default function RepositoryDetails({
     return <div>Loading repository details for {repository.name}...</div>;
   }
 
-  if (!repositoryDetails) {
-    return <div>No `package.json` found for {repository.name}.</div>;
-  }
-
   return (
-    <div>
+    <div
+      style={{
+        borderBottom: "1px solid black",
+        padding: "1rem",
+        margin: "1rem",
+      }}
+    >
+      <h5>{repository.owner.login}</h5>
+      <img
+        src={repository.owner.avatar_url}
+        style={{ width: "4rem", height: "4rem" }}
+      />
       <h2>{repository.name}</h2>
       <p>{repository.description}</p>
-      <h3>Dependencies</h3>
-      {/* Render dependencies here */}
+
+      {repositoryDetails ? (
+        <div>
+          <h3>Package.json</h3>
+          <pre>{JSON.stringify(repositoryDetails, null, 2)}</pre>
+        </div>
+      ) : (
+        <p>No `package.json` found.</p>
+      )}
     </div>
   );
 }
