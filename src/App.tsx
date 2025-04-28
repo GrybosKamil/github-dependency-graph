@@ -11,7 +11,6 @@ export default function App() {
     async function getRepositories() {
       try {
         const repos = await fetchRepositories("gryboskamil");
-        console.log({ repos });
         setRepositories(repos);
       } catch (error) {
         console.error("Error fetching repositories:", error);

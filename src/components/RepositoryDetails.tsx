@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchFileContent } from "../services/githubApi";
 import { FileContent, Repository } from "../types";
+import PackageJsonRawContent from "./PackageJsonRawContent";
 
 type RepositoryDetailsProps = {
   repository: Repository;
@@ -64,6 +65,7 @@ export default function RepositoryDetails({
         <div>
           <h3>Package.json</h3>
           <pre>{JSON.stringify(fileContent, null, 2)}</pre>
+          <PackageJsonRawContent fileContent={fileContent} />
         </div>
       ) : (
         <p>No `package.json` found.</p>
