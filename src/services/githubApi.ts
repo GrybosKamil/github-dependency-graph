@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FileContent, Repository } from "../types";
+import { FileContent, RawPackageJson, Repository } from "../types";
 
 const GITHUB_API_URL = "https://api.github.com";
 const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
@@ -76,3 +76,36 @@ export const fetchFileContent = async (
     throw error;
   }
 };
+
+export async function fetchPackageJsonRawContent(
+  url: string
+): Promise<RawPackageJson | null> {
+  const cacheKey = `url_${url}`;
+  try {
+    const cachedUrl = localStorage.getItem(cacheKey);
+    if (cachedUrl) {
+      return JSON.parse(cachedUrl);
+    }
+
+    const response = await axios.get(url);
+
+    if (response.status === 200 && response.data) {
+      const decodedContent = response.data;
+      const parsedContent: RawPackageJson = decodedContent;
+      localStorage.setItem(cacheKey, JSON.stringify(response.data));
+      return parsedContent;
+    }
+
+    localStorage.setItem(cacheKey, JSON.stringify(null));
+    return null;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      console.warn(`No url found for ${url}`);
+      localStorage.setItem(cacheKey, JSON.stringify(null));
+      return null;
+    }
+
+    console.error(`Error fetching url: ${url}`, error);
+    return null;
+  }
+}
