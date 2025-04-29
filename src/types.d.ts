@@ -41,7 +41,12 @@ export type FileContent = {
   };
 };
 
-
-export type PackageJson = {
-
-}
+export type RawPackageJson = {
+  name: string;
+  private: boolean;
+  version: string;
+  type: string;
+  scripts: Record<string, string>;
+  dependencies: Record<string, string>;
+  devDependencies: Record<string, string>;
+};
