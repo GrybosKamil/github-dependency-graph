@@ -69,7 +69,7 @@ export const useFetchPackageJson = (username: string) => {
   });
 
   return {
-        isLoading:
+    isLoading:
       repositoriesQuery.isLoading ||
       fileContentQueries.some((query) => query.isLoading) ||
       rawPackageJsonQuery.isLoading,
@@ -77,11 +77,11 @@ export const useFetchPackageJson = (username: string) => {
       repositoriesQuery.error ||
       fileContentQueries.find((query) => query.error)?.error ||
       rawPackageJsonQuery.error,
-      isError:
+    isError:
       repositoriesQuery.isError ||
       fileContentQueries.some((query) => query.isError) ||
       rawPackageJsonQuery.isError,
-      
+
     repositories: repositoriesQuery.data,
     packageJsonData: rawPackageJsonQuery.data,
   };
