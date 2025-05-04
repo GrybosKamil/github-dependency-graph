@@ -4,6 +4,8 @@ export default function App() {
   const { repositories, packageJsonData, isLoading, isError, error } =
     useFetchPackageJson("gryboskamil");
 
+  console.log({ repositories, packageJsonData, isLoading, isError, error });
+
   if (isLoading) {
     return <div>Loading...</div>;
   }

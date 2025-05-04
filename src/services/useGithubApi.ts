@@ -1,10 +1,10 @@
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
-  fetchRepositories,
   fetchFileContent,
   fetchPackageJsonRawContent,
+  fetchRepositories,
 } from "../services/githubApi";
-import { Repository, RawPackageJson, FileContent } from "../types";
+import { FileContent, RawPackageJson, Repository } from "../types";
 
 const STALE_TIME = 1000 * 60 * 5;
 
@@ -27,62 +27,61 @@ export const useFetchPackageJson = (username: string) => {
 
       const data = await fetchRepositories(username);
       setCachedData(cacheKey, data);
+
       return data;
     },
     enabled: !!username,
     staleTime: STALE_TIME,
   });
 
-  const fileContentQueries = useQueries({
-    queries: (repositoriesQuery.data || []).map((repo) => ({
-      queryKey: ["fileContent", repo.owner.login, repo.name],
-      queryFn: async () => {
-        const cacheKey = `repositoryDetails_${repo.owner.login}_${repo.name}`;
-        const cachedData = getCachedData<FileContent>(cacheKey);
-        if (cachedData) return cachedData;
-
-        const data = await fetchFileContent(repo.owner.login, repo.name);
-        setCachedData(cacheKey, data);
-        return data;
-      },
-      enabled: repositoriesQuery.isSuccess,
-      staleTime: STALE_TIME,
-    })),
-  });
-
-  const rawPackageJsonQuery = useQuery<RawPackageJson | null>({
-    queryKey: ["rawPackageJson", username],
+  const packageJsonDataQuery = useQuery<RawPackageJson[]>({
+    queryKey: ["packageJsonData", username],
     queryFn: async () => {
-      const fileContent = fileContentQueries.find((query) => query.data)?.data;
-      if (!fileContent || !fileContent.download_url) return null;
+      if (!repositoriesQuery.data) return [];
 
-      const cacheKey = `url_${fileContent.download_url}`;
-      const cachedData = getCachedData<RawPackageJson>(cacheKey);
-      if (cachedData) return cachedData;
+      const results = await Promise.allSettled(
+        repositoriesQuery.data.map(async (repo) => {
+          const cacheKey = `repositoryDetails_${repo.owner.login}_${repo.name}`;
+          const cachedData = getCachedData<FileContent>(cacheKey);
 
-      const data = await fetchPackageJsonRawContent(fileContent.download_url);
-      setCachedData(cacheKey, data);
-      return data;
+          const data = cachedData
+            ? cachedData
+            : await fetchFileContent(repo.owner.login, repo.name);
+          setCachedData(cacheKey, data);
+
+          if (!data || !data.download_url) return null;
+
+          const cacheKey2 = `url_${data?.download_url}`;
+          const cachedData2 = getCachedData<RawPackageJson>(cacheKey2);
+
+          const data2 = cachedData2
+            ? cachedData2
+            : await fetchPackageJsonRawContent(data.download_url);
+          setCachedData(cacheKey2, data2);
+
+          return data2;
+        })
+      );
+
+      console.log({ results });
+
+      return results
+        .filter(
+          (result): result is PromiseFulfilledResult<RawPackageJson> =>
+            result.status === "fulfilled" && result.value !== null
+        )
+        .map((result) => result.value);
     },
-    enabled: fileContentQueries.some((query) => query.isSuccess),
+    enabled: repositoriesQuery.isSuccess,
     staleTime: STALE_TIME,
   });
 
   return {
-    isLoading:
-      repositoriesQuery.isLoading ||
-      fileContentQueries.some((query) => query.isLoading) ||
-      rawPackageJsonQuery.isLoading,
-    error:
-      repositoriesQuery.error ||
-      fileContentQueries.find((query) => query.error)?.error ||
-      rawPackageJsonQuery.error,
-    isError:
-      repositoriesQuery.isError ||
-      fileContentQueries.some((query) => query.isError) ||
-      rawPackageJsonQuery.isError,
+    isLoading: repositoriesQuery.isLoading || packageJsonDataQuery.isLoading,
+    error: repositoriesQuery.error || packageJsonDataQuery.error,
+    isError: repositoriesQuery.isError || packageJsonDataQuery.isError,
 
     repositories: repositoriesQuery.data,
-    packageJsonData: rawPackageJsonQuery.data,
+    packageJsonData: packageJsonDataQuery.data,
   };
 };
