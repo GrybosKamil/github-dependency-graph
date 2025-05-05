@@ -18,7 +18,7 @@ interface DependencyGraphProps {
   packageJsonData: RawPackageJson[];
 }
 
-export default function DependencyGraph({
+export default function ReactFlowDependencyGraph({
   packageJsonData,
 }: DependencyGraphProps) {
   const { nodes, edges } = useMemo(() => {

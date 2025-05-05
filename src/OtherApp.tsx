@@ -1,11 +1,12 @@
-import DependencyGraph from "./components/DependencyGraph";
+import ReactFlowDependencyGraph from "./components/ReactFlowDependencyGraph";
+import VisDependencyGraph from "./components/VisDependencyGraph";
 import { useFetchPackageJson } from "./services/useGithubApi";
 
 export default function App() {
   const { repositories, packageJsonData, isLoading, isError, error } =
     useFetchPackageJson("gryboskamil");
 
-  console.log({ repositories, packageJsonData, isLoading, isError, error });
+  // console.log({ repositories, packageJsonData, isLoading, isError, error });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -18,7 +19,8 @@ export default function App() {
   return (
     <div>
       <div>
-        <DependencyGraph packageJsonData={packageJsonData} />
+        {/* <ReactFlowDependencyGraph packageJsonData={packageJsonData} /> */}
+        <VisDependencyGraph packageJsonData={packageJsonData} />
 
         {/* <h1>Repositories:</h1>
         {(repositories || []).map((repository) => (
