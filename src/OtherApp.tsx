@@ -1,3 +1,4 @@
+import DependencyGraph from "./components/DependencyGraph";
 import { useFetchPackageJson } from "./services/useGithubApi";
 
 export default function App() {
@@ -10,14 +11,16 @@ export default function App() {
     return <div>Loading...</div>;
   }
 
-  if (isError) {
+  if (isError || !packageJsonData) {
     return <div>Error: {error?.message}</div>;
   }
 
   return (
     <div>
       <div>
-        <h1>Repositories:</h1>
+        <DependencyGraph packageJsonData={packageJsonData} />
+
+        {/* <h1>Repositories:</h1>
         {(repositories || []).map((repository) => (
           <div key={repository.name}>
             <div>{repository.name}</div>
@@ -25,7 +28,7 @@ export default function App() {
           </div>
         ))}
 
-        <pre>{JSON.stringify(packageJsonData, null, 2)}</pre>
+        <pre>{JSON.stringify(packageJsonData, null, 2)}</pre> */}
       </div>
     </div>
   );
